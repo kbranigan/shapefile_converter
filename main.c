@@ -9,10 +9,6 @@ const char *shpfile = "TCL3_ADDRESS_POINT";
 
 int main()
 {
-  //int		nShapeType, nEntities, i, iPart, bValidate = 0,nInvalidCount=0;
-  //const char 	*pszPlus;
-  //double 	adfMinBound[4], adfMaxBound[4];
-  
 	DBFHandle d = DBFOpen(shpfile, "rb");
   if (d == NULL) { printf("DBFOpen error\n"); exit(1); }
 	
@@ -34,7 +30,8 @@ int main()
     int pnWidth;
     int pnDecimals;
     DBFFieldType ft = DBFGetFieldInfo(d, i, pszFieldName, &pnWidth, &pnDecimals);
-    switch (ft){
+    switch (ft)
+    {
       case FTString:
         fprintf(fp, ", %s VARCHAR(%d)", pszFieldName, pnWidth);
         break;
@@ -52,24 +49,25 @@ int main()
   }
   fprintf(fp, ");\n");
   
-  for (int j = 0 ; j < nRecordCount ; j++)
+  for (int i = 0 ; i < nRecordCount ; i++)
   {
     char pszFieldName[12];
     int pnWidth;
     int pnDecimals;
     fprintf(fp, "INSERT INTO DBF VALUES (''");
-    for (int i = 0 ; i < nFieldCount ; i++)
+    for (int j = 0 ; j < nFieldCount ; j++)
     {
-      DBFFieldType ft = DBFGetFieldInfo(d, i, pszFieldName, &pnWidth, &pnDecimals);
-      switch (ft){
+      DBFFieldType ft = DBFGetFieldInfo(d, j, pszFieldName, &pnWidth, &pnDecimals);
+      switch (ft)
+      {
         case FTString:
-          fprintf(fp, ",\"%s\"", DBFReadStringAttribute(d, j, i));
+          fprintf(fp, ",\"%s\"", DBFReadStringAttribute(d, i, j));
           break;
         case FTInteger:
-          fprintf(fp, ",\"%d\"", DBFReadIntegerAttribute(d, j, i));
+          fprintf(fp, ",\"%d\"", DBFReadIntegerAttribute(d, i, j));
           break;
         case FTDouble:
-          fprintf(fp, ",\"%f\"", DBFReadDoubleAttribute(d, j, i));
+          fprintf(fp, ",\"%f\"", DBFReadDoubleAttribute(d, i, j));
           break;
         case FTLogical:
           break;
@@ -78,33 +76,30 @@ int main()
       }
     }
     fprintf(fp, ");\n");
-    //printf("%s\n", temp_sql);
   }
-	/*
+	
 	SHPHandle h = SHPOpen(shpfile, "rb");
 	if (h == NULL) printf("error\n");
 	
+  int nShapeType;
+  int nEntities;
+  const char *pszPlus;
+  double adfMinBound[4], adfMaxBound[4];
+	
   SHPGetInfo(h, &nEntities, &nShapeType, adfMinBound, adfMaxBound);
-  printf("Shapefile Type: %s   # of Shapes: %d\n", SHPTypeName(nShapeType), nEntities);
-  //printf("File Bounds: (%12.3f,%12.3f,%g,%g)\n         to  (%12.3f,%12.3f,%g,%g)\n", adfMinBound[0], adfMinBound[1], adfMinBound[2], adfMinBound[3], adfMaxBound[0], adfMaxBound[1], adfMaxBound[2], adfMaxBound[3]);
   
-  mysql_query(&mysql, "DROP TABLE edges");
-  mysql_query(&mysql, "DROP TABLE vertexes");
-  mysql_query(&mysql, "CREATE TABLE edges (id INT PRIMARY KEY AUTO_INCREMENT, name varchar(50))");
-  mysql_query(&mysql, "CREATE TABLE vertexes (id INT PRIMARY KEY AUTO_INCREMENT, edge_id INT, x float(15,5), y float(15,5))");
-  mysql_query(&mysql, "ALTER TABLE vertexes ADD KEY edge_id (edge_id)");
-  for (i = 0; i < nEntities; i++)
+  fprintf(fp, "DROP TABLE edges;\n");
+  fprintf(fp, "DROP TABLE vertexes;\n");
+  fprintf(fp, "CREATE TABLE edges (id INT PRIMARY KEY AUTO_INCREMENT);\n");
+  fprintf(fp, "CREATE TABLE vertexes (id INT PRIMARY KEY AUTO_INCREMENT, edge_id INT, x float(15,5), y float(15,5));\n");
+  fprintf(fp, "ALTER TABLE vertexes ADD KEY edge_id (edge_id);\n");
+  for (int i = 0; i < nEntities; i++)
   {
-    int		j;
-    SHPObject	*psShape;
+    SHPObject	*psShape = SHPReadObject(h, i);
     
-    psShape = SHPReadObject(h, i);
-    //printf("\nShape:%d (%s)  nVertices=%d, nParts=%d\n  Bounds:(%12.3f,%12.3f, %g, %g)\n      to (%12.3f,%12.3f, %g, %g)\n", i, SHPTypeName(psShape->nSHPType), psShape->nVertices, psShape->nParts, psShape->dfXMin, psShape->dfYMin, psShape->dfZMin, psShape->dfMMin, psShape->dfXMax, psShape->dfYMax, psShape->dfZMax, psShape->dfMMax );
+    fprintf(fp, "INSERT INTO edges (id) VALUES (%d);\n", i);
     
-    //mysql_query(&mysql, "INSERT INTO edges (name) VALUES ('')");
-    int id = mysql_insert_id(&mysql);
-    
-    for (j = 0, iPart = 1; j < psShape->nVertices; j++)
+    for (int j = 0, iPart = 1; j < psShape->nVertices; j++)
     {
       const char *pszPartType = "";
       
@@ -118,11 +113,7 @@ int main()
       else
         pszPlus = " ";
       
-      //char temp[500];
-      //sprintf(temp, "INSERT INTO vertexes (edge_id, x, y) VALUES (%d, %f, %f)", id, psShape->padfX[j], psShape->padfY[j]);
-      //mysql_query(&mysql, temp);
-      
-      //printf("  %s\n   %s (%f, %f) %s \n", temp, pszPlus, psShape->padfX[j], psShape->padfY[j], pszPartType);
+      fprintf(fp, "INSERT INTO vertexes (edge_id, x, y) VALUES (%d, %f, %f);\n", i, psShape->padfX[j], psShape->padfY[j]);
     }
     
     SHPDestroyObject(psShape);
@@ -131,7 +122,4 @@ int main()
 	printf("all done\n");
 	if (h != NULL) SHPClose(h);
 	if (d != NULL) DBFClose(d);
-	
-	mysql_close(&mysql);
-	*/
 }
