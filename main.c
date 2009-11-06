@@ -97,7 +97,7 @@ int main(int argc, char **argv)
   {
     SHPObject	*psShape = SHPReadObject(h, i);
     
-    fprintf(fp, "INSERT INTO edges (id) VALUES (%d);\n", i);
+    fprintf(fp, "INSERT INTO edges (id) VALUES (%d);\n", i+1);
     
     for (int j = 0, iPart = 1; j < psShape->nVertices; j++)
     {
@@ -113,7 +113,7 @@ int main(int argc, char **argv)
       else
         pszPlus = " ";
       
-      fprintf(fp, "INSERT INTO vertexes (edge_id, x, y) VALUES (%d, %f, %f);\n", i, psShape->padfX[j], psShape->padfY[j]);
+      fprintf(fp, "INSERT INTO vertexes (edge_id, x, y) VALUES (%d, %f, %f);\n", i+1, psShape->padfX[j], psShape->padfY[j]);
     }
     
     SHPDestroyObject(psShape);
