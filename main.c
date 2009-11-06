@@ -9,7 +9,10 @@ int main(int argc, char **argv)
   if (argc == 1) { printf("usage: shapefile_to_mysqldump [FILENAME]\n"); exit(1); }
   
   DBFHandle d = DBFOpen(argv[1], "rb");
-  if (d == NULL) { printf("DBFOpen error\n"); exit(1); }
+  if (d == NULL) { printf("DBFOpen error (%s.dbf)\n", argv[1]); exit(1); }
+	
+	SHPHandle h = SHPOpen(argv[1], "rb");
+  if (h == NULL) { printf("SHPOpen error (%s.dbf)\n", argv[1]); exit(1); }
 	
   char filename[60];
   sprintf(filename, "%s.sql", argv[1]);
@@ -77,15 +80,13 @@ int main(int argc, char **argv)
     fprintf(fp, ");\n");
   }
 	
-	SHPHandle h = SHPOpen(argv[1], "rb");
-	if (h == NULL) printf("error\n");
-	
   int nShapeType;
   int nEntities;
   const char *pszPlus;
   double adfMinBound[4], adfMaxBound[4];
 	
   SHPGetInfo(h, &nEntities, &nShapeType, adfMinBound, adfMaxBound);
+  printf("SHP has %d entities\n", nEntities);
   
   fprintf(fp, "DROP TABLE edges;\n");
   fprintf(fp, "DROP TABLE vertexes;\n");
