@@ -88,8 +88,8 @@ int main(int argc, char **argv)
   SHPGetInfo(h, &nEntities, &nShapeType, adfMinBound, adfMaxBound);
   printf("SHP has %d entities\n", nEntities);
   
-  fprintf(fp, "DROP TABLE edges;\n");
-  fprintf(fp, "DROP TABLE vertexes;\n");
+  fprintf(fp, "DROP TABLE IF EXISTS edges;\n");
+  fprintf(fp, "DROP TABLE IF EXISTS vertexes;\n");
   fprintf(fp, "CREATE TABLE edges (id INT PRIMARY KEY AUTO_INCREMENT);\n");
   fprintf(fp, "CREATE TABLE vertexes (id INT PRIMARY KEY AUTO_INCREMENT, edge_id INT, x float(15,5), y float(15,5));\n");
   fprintf(fp, "ALTER TABLE vertexes ADD KEY edge_id (edge_id);\n");
