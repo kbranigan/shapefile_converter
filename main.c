@@ -53,6 +53,8 @@ int main(int argc, char **argv)
   
   for (int i = 0 ; i < nRecordCount ; i++)
   {
+    unsigned int k;
+    char *cStr;
     char pszFieldName[12];
     int pnWidth;
     int pnDecimals;
@@ -63,7 +65,11 @@ int main(int argc, char **argv)
       switch (ft)
       {
         case FTString:
-          fprintf(fp, ",\"%s\"", DBFReadStringAttribute(d, i, j));
+          cStr = (char *)DBFReadStringAttribute(d, i, j);
+          for (k = 0 ; k < strlen(cStr) ; k++)
+            if (cStr[k] == '"')
+              cStr[k] = '\'';
+          fprintf(fp, ",\"%s\"", cStr);
           break;
         case FTInteger:
           fprintf(fp, ",\"%d\"", DBFReadIntegerAttribute(d, i, j));
