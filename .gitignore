@@ -7,3 +7,5 @@ shapefile_to_mysqldump
 *.sbn
 *.xml
 *.shx
+*.sbx
+*.gz
