@@ -4,16 +4,15 @@
 #include <string.h>
 #include "shapefil.h"
 
-const char *database = "shapefile_address_point";
-const char *shpfile = "TCL3_ADDRESS_POINT";
-
-int main()
+int main(int argc, char **argv)
 {
-	DBFHandle d = DBFOpen(shpfile, "rb");
+  if (argc == 1) { printf("usage: shapefile_to_mysqldump [FILENAME]\n"); exit(1); }
+  
+  DBFHandle d = DBFOpen(argv[1], "rb");
   if (d == NULL) { printf("DBFOpen error\n"); exit(1); }
 	
   char filename[60];
-  sprintf(filename, "%s.sql", database);
+  sprintf(filename, "%s.sql", argv[1]);
   printf("%s\n", filename);
   FILE *fp = fopen(filename, "w");
   if (fp == NULL) { printf("fopen error\n"); exit(1); }
@@ -78,7 +77,7 @@ int main()
     fprintf(fp, ");\n");
   }
 	
-	SHPHandle h = SHPOpen(shpfile, "rb");
+	SHPHandle h = SHPOpen(argv[1], "rb");
 	if (h == NULL) printf("error\n");
 	
   int nShapeType;
