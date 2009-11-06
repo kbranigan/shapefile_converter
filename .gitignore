@@ -1,0 +1,9 @@
+*.o
+shapefile_to_mysqldump
+*.sql
+*.dbf
+*.shp
+*.prj
+*.sbn
+*.xml
+*.shx
