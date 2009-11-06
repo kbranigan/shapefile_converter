@@ -3,109 +3,85 @@
 #include <stdlib.h>
 #include <string.h>
 #include "shapefil.h"
-#include "mysql.h"
 
-// g++ main.c shpopen.o dbfopen.o -L/usr/local/mysql/lib/mysql -lmysqlclient -I/usr/local/mysql/include/mysql
+const char *database = "shapefile_address_point";
+const char *shpfile = "TCL3_ADDRESS_POINT";
 
 int main()
 {
-  MYSQL mysql;
-  MYSQL_RES res;
-  MYSQL_ROW row;
+  //int		nShapeType, nEntities, i, iPart, bValidate = 0,nInvalidCount=0;
+  //const char 	*pszPlus;
+  //double 	adfMinBound[4], adfMaxBound[4];
   
-  const char *database = "shapefile_address_point";
-  const char *shpfile = "TCL3_ADDRESS_POINT";
-  
-  mysql_init(&mysql);
-  if (!mysql_real_connect(&mysql, "localhost", "root", "", database, 0, NULL, 0));
-  
-  
-  
-	SHPHandle h;
-  DBFHandle d;
+	DBFHandle d = DBFOpen(shpfile, "rb");
+  if (d == NULL) { printf("DBFOpen error\n"); exit(1); }
 	
-  int		nShapeType, nEntities, i, iPart, bValidate = 0,nInvalidCount=0;
-  const char 	*pszPlus;
-  double 	adfMinBound[4], adfMaxBound[4];
-  
-	d = DBFOpen(shpfile, "rb");
-	if (d == NULL) printf("error\n");
+  char filename[60];
+  sprintf(filename, "%s.sql", database);
+  printf("%s\n", filename);
+  FILE *fp = fopen(filename, "w");
+  if (fp == NULL) { printf("fopen error\n"); exit(1); }
 	
   int nRecordCount = DBFGetRecordCount(d);
   int nFieldCount = DBFGetFieldCount(d);
+  printf("DBF has %d records (with %d fields)\n", nRecordCount, nFieldCount);
 	
-  printf("DBF nRecordCount = %d, nFieldCount = %d\n", nRecordCount, nFieldCount);
-	
-  mysql_query(&mysql, "DROP TABLE DBF");
-  char temp_sql[5000];
-  memset(temp_sql, 0, sizeof(temp_sql));
-  strcat(temp_sql, "CREATE TABLE DBF (id INT primary key auto_increment");
-  for (i = 0 ; i < nFieldCount ; i++)
+  fprintf(fp, "DROP TABLE IF EXISTS DBF;\n");
+  fprintf(fp, "CREATE TABLE DBF (id INT primary key auto_increment");
+  for (int i = 0 ; i < nFieldCount ; i++)
   {
     char pszFieldName[12];
     int pnWidth;
     int pnDecimals;
-    char tt[50];
     DBFFieldType ft = DBFGetFieldInfo(d, i, pszFieldName, &pnWidth, &pnDecimals);
     switch (ft){
       case FTString:
-        sprintf(tt, ", %s VARCHAR(%d)", pszFieldName, pnWidth);
-        strcat(temp_sql, tt);
-      break;
+        fprintf(fp, ", %s VARCHAR(%d)", pszFieldName, pnWidth);
+        break;
       case FTInteger:
-        sprintf(tt, ", %s INT", pszFieldName);
-        strcat(temp_sql, tt);
-      break;
+        fprintf(fp, ", %s INT", pszFieldName);
+        break;
       case FTDouble:
-        sprintf(tt, ", %s FLOAT(15,10)", pszFieldName);
-        strcat(temp_sql, tt);
-      break;
+        fprintf(fp, ", %s FLOAT(15,10)", pszFieldName);
+        break;
+      case FTLogical:
+        break;
+      case FTInvalid:
+        break;
     }
   }
-  strcat(temp_sql, ");\n");
-  mysql_query(&mysql, temp_sql);
+  fprintf(fp, ");\n");
   
   for (int j = 0 ; j < nRecordCount ; j++)
   {
     char pszFieldName[12];
     int pnWidth;
     int pnDecimals;
-    const char *cVal;
-    int iVal;
-    double dVal;
-    memset(temp_sql, 0, sizeof(temp_sql));
-    strcat(temp_sql, "INSERT INTO DBF VALUES (''");
-    for (i = 0 ; i < nFieldCount ; i++)
+    fprintf(fp, "INSERT INTO DBF VALUES (''");
+    for (int i = 0 ; i < nFieldCount ; i++)
     {
-      char tt[50];
       DBFFieldType ft = DBFGetFieldInfo(d, i, pszFieldName, &pnWidth, &pnDecimals);
       switch (ft){
         case FTString:
-          cVal = DBFReadStringAttribute(d, j, i);
-          //printf("%s VARCHAR(%d), ", pszFieldName, pnWidth);
-          sprintf(tt, ",\"%s\"", cVal);
-          strcat(temp_sql, tt);
-        break;
+          fprintf(fp, ",\"%s\"", DBFReadStringAttribute(d, j, i));
+          break;
         case FTInteger:
-          iVal = DBFReadDoubleAttribute(d, j, i);
-          //printf("%s INT, ", pszFieldName);
-          sprintf(tt, ",\"%d\"", iVal);
-          strcat(temp_sql, tt);
-        break;
+          fprintf(fp, ",\"%d\"", DBFReadIntegerAttribute(d, j, i));
+          break;
         case FTDouble:
-          dVal = DBFReadDoubleAttribute(d, j, i);
-          //printf("%s FLOAT(15,10), ", pszFieldName);
-          sprintf(tt, ",\"%f\"", dVal);
-          strcat(temp_sql, tt);
-        break;
+          fprintf(fp, ",\"%f\"", DBFReadDoubleAttribute(d, j, i));
+          break;
+        case FTLogical:
+          break;
+        case FTInvalid:
+          break;
       }
     }
-    strcat(temp_sql, ");\n");
-    mysql_query(&mysql, temp_sql);
+    fprintf(fp, ");\n");
     //printf("%s\n", temp_sql);
   }
-	
-	h = SHPOpen(shpfile, "rb");
+	/*
+	SHPHandle h = SHPOpen(shpfile, "rb");
 	if (h == NULL) printf("error\n");
 	
   SHPGetInfo(h, &nEntities, &nShapeType, adfMinBound, adfMaxBound);
@@ -157,4 +133,5 @@ int main()
 	if (d != NULL) DBFClose(d);
 	
 	mysql_close(&mysql);
+	*/
 }
