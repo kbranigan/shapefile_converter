@@ -119,11 +119,18 @@ int main(int argc, char **argv)
       else
         pszPlus = " ";
       
-      fprintf(fp, "INSERT INTO vertexes (edge_id, x, y) VALUES (%d, %f, %f);\n", i+1, psShape->padfX[j], psShape->padfY[j]);
+      if (j%500==0)
+        fprintf(fp, "%sINSERT INTO vertexes (edge_id, x, y) VALUES (", (j!=0 ? ");\n": ""));
+      else
+        fprintf(fp, "),(");
+      
+      fprintf(fp, "%d, %f, %f", i+1, psShape->padfX[j], psShape->padfY[j]);
     }
+    fprintf(fp, ");\n");
     
     SHPDestroyObject(psShape);
   }
+  
   
 	printf("all done\n");
 	if (h != NULL) SHPClose(h);
