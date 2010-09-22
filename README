@@ -2,4 +2,8 @@ This C application converts shapefile (.dbf, .shp and .shx files) to mysql .sql 
 
 http://en.wikipedia.org/wiki/Shapefile
 
-Just run 'make' and run the executable - it's written and only tested on Mac OS X.
+Just run 'make' or 'make kml' and run the executable - it's written and only tested on Mac OS X.
+
+usage: shapefile_to_mysqldump [FILENAME]
+or
+usage: shapefile_to_kml [FILENAME]
