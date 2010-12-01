@@ -3,6 +3,7 @@
 require 'rubygems'
 require 'mysql'
 
+=begin
 urls = [
   'http://www.toronto.ca/open/datasets/address-points/addess_points_may2010_WGS84.zip', # WGS84
   #'http://www.toronto.ca/open/datasets/bikeways/Centreline_OD_WGS84.zip',               # WGS84
@@ -30,6 +31,32 @@ urls.each do |url|
 end
 
 Process.exit
+=end
+
+dbs = [
+  'Priority_Investment_Neighbourhoods',
+  'Toronto_Police_Facilities_WGS84',
+  'Multi_level_crossing_WGS84',
+  'Food_Banks_Meals_on_Wheels',
+  'Food_Banks_Salvation_Army',
+  'Food_Banks_Second_Harvest',
+  'Turn_restrictions_WGS84',
+  'V_TRAFFIC_SIGNALS_WGS84',
+  'TO_CENTRELINE_WGS84',
+  'ADDRESS_POINT_WGS84',
+  'prov_ab_p_geo83_e',
+  'Places_of_Worship',
+  'can_ab_l_geo83_e',
+  'FED_CA_1_0_0_ENG',
+  'Neighbourhoods',
+  'Transit_City',
+  'icitw_wgs84',
+  'ISWMD_WGS84',
+  'UBIA_WGS84',
+  'UPARK_WGS84',
+]
+
+=begin
 
 dbs = [
   'Toronto_Police_Facilities_WGS84',
@@ -48,6 +75,7 @@ dbs = [
   'UBIA_WGS84',
   'TCL3_UPARK',
 ]
+=end
 
 system("make")
 
