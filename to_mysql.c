@@ -9,7 +9,7 @@ int main(int argc, char **argv)
 {
   if (argc == 1) { printf("usage: shapefile_to_mysqldump [FILENAME]\n"); exit(1); }
   
-  setlocale(LC_CTYPE, "en_CA.UTF-8");
+  //setlocale(LC_CTYPE, "en_CA.UTF-8");
   
   char file_name[150];
   sprintf(file_name, "%s", argv[1]);
