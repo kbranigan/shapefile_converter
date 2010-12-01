@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 	
   fprintf(fp, "SET CHARSET UTF8;\n");
   fprintf(fp, "DROP TABLE IF EXISTS DBF;\n");
-  fprintf(fp, "CREATE TABLE DBF (id INT primary key auto_increment");
+  fprintf(fp, "CREATE TABLE DBF (dbf_id INT primary key auto_increment");
   for (int i = 0 ; i < nFieldCount ; i++)
   {
     char pszFieldName[12];
@@ -114,16 +114,14 @@ int main(int argc, char **argv)
   SHPGetInfo(h, &nEntities, &nShapeType, adfMinBound, adfMaxBound);
   printf("SHP has %d entities\n", nEntities);
   
-  fprintf(fp, "DROP TABLE IF EXISTS edges;\n");
-  fprintf(fp, "DROP TABLE IF EXISTS vertexes;\n");
-  fprintf(fp, "CREATE TABLE edges (id INT PRIMARY KEY AUTO_INCREMENT);\n");
-  fprintf(fp, "CREATE TABLE vertexes (id INT PRIMARY KEY AUTO_INCREMENT, edge_id INT, x float(15,5), y float(15,5));\n");
-  fprintf(fp, "ALTER TABLE vertexes ADD KEY edge_id (edge_id);\n");
+  fprintf(fp, "DROP TABLE IF EXISTS shape_points;\n");
+  fprintf(fp, "CREATE TABLE shape_points (id INT PRIMARY KEY AUTO_INCREMENT, dbf_id INT, x float(15,5), y float(15,5));\n");
+  fprintf(fp, "ALTER TABLE shape_points ADD KEY dbf_id (dbf_id);\n");
   for (int i = 0; i < nEntities; i++)
   {
     SHPObject	*psShape = SHPReadObject(h, i);
     
-    fprintf(fp, "INSERT INTO edges (id) VALUES (%d);\n", i+1);
+    //fprintf(fp, "INSERT INTO edges (id) VALUES (%d);\n", i+1);
     
     for (int j = 0, iPart = 1; j < psShape->nVertices; j++)
     {
@@ -140,7 +138,7 @@ int main(int argc, char **argv)
         pszPlus = " ";
       
       if (j%500==0)
-        fprintf(fp, "%sINSERT INTO vertexes (edge_id, x, y) VALUES (", (j!=0 ? ");\n": ""));
+        fprintf(fp, "%sINSERT INTO shape_points (dbf_id, x, y) VALUES (", (j!=0 ? ");\n": ""));
       else
         fprintf(fp, "),(");
       

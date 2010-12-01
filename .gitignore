@@ -9,3 +9,4 @@ shapefile_to_mysqldump
 *.shx
 *.sbx
 *.gz
+civicsets
