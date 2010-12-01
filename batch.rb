@@ -86,11 +86,11 @@ my.query("SET CHARSET UTF8");
 
 dbs.each do |db|
   puts "#{db}\n"
-  #my.query("DROP DATABASE IF EXISTS `#{db}`")
-  #my.query("CREATE DATABASE `#{db}`")
-  #system("./shapefile_to_mysqldump civicsets/#{db}/#{db}")
+  my.query("DROP DATABASE IF EXISTS `#{db}`")
+  my.query("CREATE DATABASE `#{db}`")
+  system("./shapefile_to_mysqldump civicsets/#{db}/#{db}")
   system("cat civicsets/#{db}/#{db}.sql | mysql -uroot #{db}")
-  #system("./mysql_shapefile_to_mongo.rb #{db}")
+  system("./mysql_shapefile_to_mongo.rb #{db}")
   #my.select_db(db)
   
 end
