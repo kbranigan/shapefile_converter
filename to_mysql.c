@@ -1,18 +1,37 @@
 
+#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "shapefil.h"
+#include "shapefile_src/shapefil.h"
 
 int main(int argc, char **argv)
 {
   if (argc == 1) { printf("usage: shapefile_to_mysqldump [FILENAME]\n"); exit(1); }
   
-  DBFHandle d = DBFOpen(argv[1], "rb");
-  if (d == NULL) { printf("DBFOpen error (%s.dbf)\n", argv[1]); exit(1); }
+  setlocale(LC_CTYPE, "en_CA.UTF-8");
+  
+  char file_name[150];
+  sprintf(file_name, "%s", argv[1]);
+    
+  DBFHandle d = DBFOpen(file_name, "rb");
+  if (d == NULL)
+  {
+    sprintf(file_name, "%s/%s", argv[1], argv[1]);
+    d = DBFOpen(file_name, "rb");
+    if (d == NULL)
+    {
+      printf("DBFOpen error (%s.dbf)\n", argv[1]);
+      exit(1);
+    }
+  }
 	
-	SHPHandle h = SHPOpen(argv[1], "rb");
-  if (h == NULL) { printf("SHPOpen error (%s.dbf)\n", argv[1]); exit(1); }
+	SHPHandle h = SHPOpen(file_name, "rb");
+  if (h == NULL)
+  {
+    printf("SHPOpen error (%s.dbf)\n", argv[1]);
+    exit(1);
+  }
 	
   char filename[60];
   sprintf(filename, "%s.sql", argv[1]);
@@ -24,6 +43,7 @@ int main(int argc, char **argv)
   int nFieldCount = DBFGetFieldCount(d);
   printf("DBF has %d records (with %d fields)\n", nRecordCount, nFieldCount);
 	
+  fprintf(fp, "SET CHARSET UTF8;\n");
   fprintf(fp, "DROP TABLE IF EXISTS DBF;\n");
   fprintf(fp, "CREATE TABLE DBF (id INT primary key auto_increment");
   for (int i = 0 ; i < nFieldCount ; i++)

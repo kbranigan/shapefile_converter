@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "shapefil.h"
+#include "shapefile_src/shapefil.h"
 
 int main(int argc, char **argv)
 {
