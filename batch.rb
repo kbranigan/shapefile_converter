@@ -5,14 +5,14 @@ require 'mysql'
 
 urls = [
   'http://www.toronto.ca/open/datasets/address-points/addess_points_may2010_WGS84.zip', # WGS84
-  'http://www.toronto.ca/open/datasets/bikeways/Centreline_OD_WGS84.zip',               # WGS84
+  #'http://www.toronto.ca/open/datasets/bikeways/Centreline_OD_WGS84.zip',               # WGS84
   'http://www.toronto.ca/open/datasets/bia/BIA_June2010_WGS84.zip',                     # WGS84
   'http://www.toronto.ca/open/datasets/centreline/centreline_may2010_WGS84.zip',        # WGS84
   'http://www.toronto.ca/open/datasets/foodbanks/food-banks.zip',                       # UTM 6 Degree Zone 17N NAD27
   'http://www.toronto.ca/open/datasets/interim-archaeological-potential/Archaeological_Potential_wgs84.zip', # WGS84
   'http://www.toronto.ca/open/datasets/interim-archaeological-potential/Water_wgs_84.zip',                   # WGS84
   'http://www.toronto.ca/open/datasets/neighbourhoods/neighbourhoods.zip',                              # UTM 6 Degree Zone 17N NAD27
-  'http://www.toronto.ca/open/datasets/one-way-streets/Centreline_OD_WGS84.zip',                        # WGS84
+  #'http://www.toronto.ca/open/datasets/one-way-streets/Centreline_OD_WGS84.zip',                        # WGS84
   'http://www.toronto.ca/open/datasets/parks/parks_may2010_WGS84.zip',                                  # WGS84
   'http://www.toronto.ca/open/datasets/police-locations/Toronto_Police_Facilities_WGS84.zip',           # WGS84
   'http://www.toronto.ca/open/datasets/priority-neighbourhoods/priority-invest-neighbourhoods.zip',     # UTM 6 Degree Zone 17N NAD27
