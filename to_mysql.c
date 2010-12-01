@@ -9,7 +9,7 @@ int main(int argc, char **argv)
 {
   if (argc == 1) { printf("usage: shapefile_to_mysqldump [FILENAME]\n"); exit(1); }
   
-  //setlocale(LC_CTYPE, "en_CA.UTF-8");
+  setlocale(LC_CTYPE, "en_CA.UTF-8");
   
   char file_name[150];
   sprintf(file_name, "%s", argv[1]);
@@ -115,14 +115,34 @@ int main(int argc, char **argv)
   printf("SHP has %d entities\n", nEntities);
   
   fprintf(fp, "DROP TABLE IF EXISTS shape_points;\n");
-  fprintf(fp, "CREATE TABLE shape_points (id INT PRIMARY KEY AUTO_INCREMENT, dbf_id INT, x float(15,5), y float(15,5));\n");
+  fprintf(fp, "CREATE TABLE shape_points (id INT PRIMARY KEY AUTO_INCREMENT, dbf_id INT, part_id INT, x float(15,5), y float(15,5));\n");
+  fprintf(fp, "DROP TABLE IF EXISTS edges;\n");
+  fprintf(fp, "CREATE TABLE edges (id INT PRIMARY KEY AUTO_INCREMENT, dbf_id INT, part_id INT, part_type VARCHAR(50));\n");
   fprintf(fp, "ALTER TABLE shape_points ADD KEY dbf_id (dbf_id);\n");
   for (int i = 0; i < nEntities; i++)
   {
     SHPObject	*psShape = SHPReadObject(h, i);
     
-    //fprintf(fp, "INSERT INTO edges (id) VALUES (%d);\n", i+1);
-    
+    for (int j = 0, iPart = 1; j < psShape->nVertices; j++)
+    {
+      const char *pszPartType = "";
+      
+      if (j == 0 && psShape->nParts > 0)
+      {
+        pszPartType = SHPPartTypeName(psShape->panPartType[0]);
+        fprintf(fp, "INSERT INTO edges (dbf_id, part_id, part_type) VALUES (%d, %d, \"%s\");\n", i+1, iPart, pszPartType);
+      }
+      if (iPart < psShape->nParts && psShape->panPartStart[iPart] == j)
+      {
+        pszPartType = SHPPartTypeName(psShape->panPartType[iPart]);
+        iPart++;
+        pszPlus = "+";
+        fprintf(fp, "INSERT INTO edges (dbf_id, part_id, part_type) VALUES (%d, %d, \"%s\");\n", i+1, iPart, pszPartType);
+      }
+      else
+        pszPlus = " ";
+    }
+  
     for (int j = 0, iPart = 1; j < psShape->nVertices; j++)
     {
       const char *pszPartType = "";
@@ -138,11 +158,11 @@ int main(int argc, char **argv)
         pszPlus = " ";
       
       if (j%500==0)
-        fprintf(fp, "%sINSERT INTO shape_points (dbf_id, x, y) VALUES (", (j!=0 ? ");\n": ""));
+        fprintf(fp, "%sINSERT INTO shape_points (dbf_id, part_id, x, y) VALUES (", (j!=0 ? ");\n": ""));
       else
         fprintf(fp, "),(");
       
-      fprintf(fp, "%d, %f, %f", i+1, psShape->padfX[j], psShape->padfY[j]);
+      fprintf(fp, "%d, %d, %f, %f", i+1, iPart, psShape->padfX[j], psShape->padfY[j]);
     }
     fprintf(fp, ");\n");
     
