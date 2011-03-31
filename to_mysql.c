@@ -13,7 +13,7 @@ int main(int argc, char **argv)
   
   char file_name[150];
   sprintf(file_name, "%s", argv[1]);
-    
+  
   DBFHandle d = DBFOpen(file_name, "rb");
   if (d == NULL)
   {
@@ -25,14 +25,7 @@ int main(int argc, char **argv)
       exit(1);
     }
   }
-	
-	SHPHandle h = SHPOpen(file_name, "rb");
-  if (h == NULL)
-  {
-    printf("SHPOpen error (%s.dbf)\n", argv[1]);
-    exit(1);
-  }
-	
+  
   char filename[60];
   sprintf(filename, "%s.sql", argv[1]);
   printf("%s\n", filename);
@@ -106,27 +99,35 @@ int main(int argc, char **argv)
     fprintf(fp, ");\n");
   }
 	
+	
+  SHPHandle h = SHPOpen(file_name, "rb");
+  if (h == NULL)
+  {
+    printf("SHPOpen error (%s.dbf)\n", argv[1]);
+    exit(1);
+  }
+
   int nShapeType;
   int nEntities;
   const char *pszPlus;
   double adfMinBound[4], adfMaxBound[4];
-	
+
   SHPGetInfo(h, &nEntities, &nShapeType, adfMinBound, adfMaxBound);
   printf("SHP has %d entities\n", nEntities);
-  
+
   fprintf(fp, "DROP TABLE IF EXISTS shape_points;\n");
-  fprintf(fp, "CREATE TABLE shape_points (id INT PRIMARY KEY AUTO_INCREMENT, dbf_id INT, part_id INT, x float(15,5), y float(15,5));\n");
+  fprintf(fp, "CREATE TABLE shape_points (id INT PRIMARY KEY AUTO_INCREMENT, dbf_id MEDIUMINT, part_id MEDIUMINT, x DOUBLE(18,15), y DOUBLE(18,15));\n");
   fprintf(fp, "DROP TABLE IF EXISTS edges;\n");
-  fprintf(fp, "CREATE TABLE edges (id INT PRIMARY KEY AUTO_INCREMENT, dbf_id INT, part_id INT, part_type VARCHAR(50));\n");
+  fprintf(fp, "CREATE TABLE edges (id INT PRIMARY KEY AUTO_INCREMENT, dbf_id MEDIUMINT, part_id MEDIUMINT, part_type VARCHAR(50));\n");
   fprintf(fp, "ALTER TABLE shape_points ADD KEY dbf_id (dbf_id);\n");
   for (int i = 0; i < nEntities; i++)
   {
     SHPObject	*psShape = SHPReadObject(h, i);
-    
+  
     for (int j = 0, iPart = 1; j < psShape->nVertices; j++)
     {
       const char *pszPartType = "";
-      
+    
       if (j == 0 && psShape->nParts > 0)
       {
         pszPartType = SHPPartTypeName(psShape->panPartType[0]);
@@ -142,11 +143,11 @@ int main(int argc, char **argv)
       else
         pszPlus = " ";
     }
-  
+
     for (int j = 0, iPart = 1; j < psShape->nVertices; j++)
     {
       const char *pszPartType = "";
-      
+    
       if (j == 0 && psShape->nParts > 0) pszPartType = SHPPartTypeName(psShape->panPartType[0]);
       if (iPart < psShape->nParts && psShape->panPartStart[iPart] == j)
       {
@@ -156,19 +157,18 @@ int main(int argc, char **argv)
       }
       else
         pszPlus = " ";
-      
+    
       if (j%500==0)
         fprintf(fp, "%sINSERT INTO shape_points (dbf_id, part_id, x, y) VALUES (", (j!=0 ? ");\n": ""));
       else
         fprintf(fp, "),(");
-      
-      fprintf(fp, "%d, %d, %f, %f", i+1, iPart, psShape->padfX[j], psShape->padfY[j]);
+    
+      fprintf(fp, "%d, %d, %3.15lf, %3.15lf", i+1, iPart, psShape->padfX[j], psShape->padfY[j]);
     }
     fprintf(fp, ");\n");
-    
+  
     SHPDestroyObject(psShape);
   }
-  
   
 	printf("all done\n");
 	if (h != NULL) SHPClose(h);
